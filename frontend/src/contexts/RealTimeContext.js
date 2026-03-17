@@ -5,8 +5,9 @@ const RealTimeContext = createContext();
 
 // Get API base URL
 const getApiBaseUrl = () => {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
-  return backendUrl;
+  const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // Remove /api suffix if present to get base URL
+  return backendUrl.replace(/\/$/, '').replace(/\/api$/, '');
 };
 
 export const useRealTime = () => {
