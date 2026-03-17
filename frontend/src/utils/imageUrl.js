@@ -1,5 +1,5 @@
 // Backend URL for image serving
-const BACKEND_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : 'http://localhost:5001';
+const BACKEND_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
 
 // Helper to construct full image URLs via backend
 export const getImageUrl = (imagePath) => {

@@ -326,29 +326,32 @@ const AdminUserProfile = () => {
   const getFullImageUrl = (url) => {
     if (!url) return '';
     
+    // Get base URL from environment variable
+    const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
+    
     // If already a full URL (Cloudinary or external), return as-is
     if (url.startsWith('http')) return url;
     
     // If it's a file:// URL, extract the filename
     if (url.startsWith('file://')) {
       const filename = url.split('/').pop();
-      return `http://localhost:5001/uploads/${filename}`;
+      return `${baseUrl}/uploads/${filename}`;
     }
     
     // If contains Windows path
     if (url.includes('D:/') || url.includes('D:\\')) {
       const filename = url.split(/[\\/]/).pop();
-      return `http://localhost:5001/uploads/${filename}`;
+      return `${baseUrl}/uploads/${filename}`;
     }
     
     // If it's a path starting with /uploads/
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5001${url}`;
+      return `${baseUrl}${url}`;
     }
     
     // If it's just a filename
     if (!url.includes('/') && !url.includes('\\')) {
-      return `http://localhost:5001/uploads/${url}`;
+      return `${baseUrl}/uploads/${url}`;
     }
     
     // Otherwise use as-is

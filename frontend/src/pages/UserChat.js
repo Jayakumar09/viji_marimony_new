@@ -252,8 +252,9 @@ const UserChat = () => {
   const getImageUrl = (url) => {
     if (!url) return null;
     if (url.startsWith('http')) return url;
-    // Backend is running on port 5001
-    return `http://localhost:5001${url}`;
+    // Use environment variable or empty string for production
+    const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
+    return `${baseUrl}${url}`;
   };
 
   if (loading) {

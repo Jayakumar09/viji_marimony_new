@@ -2693,7 +2693,8 @@ const AdminChat = () => {
                     const getImageUrl = (url) => {
                       if (!url) return null;
                       if (url.startsWith('http')) return url;
-                      return `http://localhost:5001${url}`;
+                      const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
+                      return `${baseUrl}${url}`;
                     };
                     
                     return (
