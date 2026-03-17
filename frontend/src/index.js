@@ -55,21 +55,21 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <AuthProvider>
-            <RealTimeProvider>
+          <RealTimeProvider>
+            <AuthProvider>
               <App />
-            </RealTimeProvider>
-            <Toaster 
-              position="top-right" 
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          </AuthProvider>
+            </AuthProvider>
+          </RealTimeProvider>
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+            }}
+          />
         </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>
