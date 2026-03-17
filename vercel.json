@@ -3,11 +3,9 @@
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/static-build@2.0.4",
+      "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "installCommand": "cd frontend && npm install",
-        "buildCommand": "cd frontend && npm run build"
+        "distDir": "build"
       }
     }
   ],
@@ -23,9 +21,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "@api-url"
-  },
-  "regions": ["bom1"]
+  ]
 }

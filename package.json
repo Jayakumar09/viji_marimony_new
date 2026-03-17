@@ -8,6 +8,7 @@
     "server": "cd backend && npm run dev",
     "client": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
+    "install": "cd frontend && npm install",
     "install-deps": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "keywords": ["matrimony", "boyar", "community", "marriage", "dating"],
@@ -15,5 +16,6 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
-  }
+  },
+  "workspaces": []
 }
