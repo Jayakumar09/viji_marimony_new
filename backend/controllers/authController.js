@@ -289,12 +289,21 @@ const getMe = async (req, res) => {
         smokingHabit: true,
         diet: true,
         profilePhoto: true,
+        profilePhotoScale: true,
+        profilePhotoX: true,
+        profilePhotoY: true,
         photos: true,
         bio: true,
         familyValues: true,
         familyType: true,
         familyStatus: true,
         aboutFamily: true,
+        isVerified: true,
+        isPremium: true,
+        isActive: true,
+        emailVerified: true,
+        phoneVerified: true,
+        photosVerified: true,
         // Family background fields
         fatherName: true,
         fatherOccupation: true,
@@ -309,14 +318,18 @@ const getMe = async (req, res) => {
         birthDate: true,
         birthTime: true,
         birthPlace: true,
-        isVerified: true,
-        isPremium: true,
+        // Subscription fields
         subscriptionTier: true,
+        successFee: true,
         subscriptionStart: true,
         subscriptionEnd: true,
-        emailVerified: true,
-        phoneVerified: true,
-        createdAt: true
+        // Verification
+        manualVerificationStatus: true,
+        manualVerificationNotes: true,
+        profileVerificationStatus: true,
+        profileVerified: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 

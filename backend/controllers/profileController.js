@@ -52,8 +52,11 @@ const getProfile = async (req, res) => {
         aboutFamily: true,
         isVerified: true,
         isPremium: true,
+        isActive: true,
         emailVerified: true,
         phoneVerified: true,
+        photosVerified: true,
+        lastLoginAt: true,
         // Horoscope fields
         raasi: true,
         natchathiram: true,
@@ -75,6 +78,10 @@ const getProfile = async (req, res) => {
         subscriptionEnd: true,
         // Manual verification
         manualVerificationStatus: true,
+        manualVerificationNotes: true,
+        // Profile verification
+        profileVerificationStatus: true,
+        profileVerified: true,
         createdAt: true,
         updatedAt: true
       }
