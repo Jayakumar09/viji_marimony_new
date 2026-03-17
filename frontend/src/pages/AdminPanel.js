@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useRealTime } from '../contexts/RealTimeContext';
 import { normalizeTier, getTierDisplayName, getTierBadgeColor } from '../utils/subscription';
 import AdminUserProfile from './AdminUserProfile';
 import ProfileShareModal from '../components/ProfileShareModal';
@@ -29,6 +30,7 @@ const DRAWER_WIDTH = 280;
 // Admin Panel Component
 const AdminPanel = () => {
   const { user } = useAuth();
+  const { onAdminUpdate } = useRealTime();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -89,9 +91,22 @@ const AdminPanel = () => {
         fetchPendingPaymentCount();
         fetchPendingChatCount();
       }, 30000);
+
+      // Listen for real-time admin updates
+      if (onAdminUpdate) {
+        onAdminUpdate((data) => {
+          console.log('[AdminPanel] Admin update received:', data);
+          // Refresh all counts when any update occurs
+          fetchPendingPhotoCount();
+          fetchPendingPaymentCount();
+          fetchPendingChatCount();
+          toast.success(`New update: ${data.updateType || 'Data changed'}`);
+        });
+      }
+
       return () => clearInterval(interval);
     }
-  }, [isAdmin]);
+  }, [isAdmin, onAdminUpdate]);
 
   if (!isAdmin) {
     return (

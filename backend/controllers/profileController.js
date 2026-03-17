@@ -1,5 +1,6 @@
 const { prisma } = require('../utils/database');
 const { extractPublicId, deleteImage } = require('../utils/upload');
+const sseService = require('../services/sseService');
 
 // Subscription plans configuration
 const SUBSCRIPTION_PLANS = [
@@ -292,6 +293,10 @@ const updateProfile = async (req, res) => {
       user: updatedUser
     });
 
+    // Broadcast profile update to all connected clients
+    sseService.broadcastProfileUpdate(updatedUser.id, Object.keys(updateData));
+    sseService.broadcastAdminUpdate('profile_updated', { userId: updatedUser.id, customId: updatedUser.customId });
+
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Internal server error during profile update' });
@@ -336,6 +341,9 @@ const updateHoroscope = async (req, res) => {
       message: 'Horoscope details updated successfully',
       user: updatedUser
     });
+
+    // Broadcast profile update to all connected clients
+    sseService.broadcastProfileUpdate(updatedUser.id, Object.keys(updateData));
 
   } catch (error) {
     console.error('Update horoscope error:', error);
@@ -394,6 +402,9 @@ const updateFamilyBackground = async (req, res) => {
       user: updatedUser
     });
 
+    // Broadcast profile update to all connected clients
+    sseService.broadcastProfileUpdate(updatedUser.id, Object.keys(updateData));
+
   } catch (error) {
     console.error('Update family background error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -443,6 +454,10 @@ const updateSubscription = async (req, res) => {
       message: 'Subscription updated successfully',
       user: updatedUser
     });
+
+    // Broadcast subscription update to all connected clients
+    sseService.broadcastProfileUpdate(updatedUser.id, ['subscriptionTier', 'isPremium']);
+    sseService.broadcastAdminUpdate('subscription_updated', { userId: updatedUser.id, subscriptionTier: updatedUser.subscriptionTier });
 
   } catch (error) {
     console.error('Update subscription error:', error);
@@ -710,6 +725,10 @@ const uploadProfilePhoto = async (req, res) => {
       profilePhoto: updatedUser.profilePhoto
     });
 
+    // Broadcast profile photo update to all connected clients
+    sseService.broadcastProfileUpdate(updatedUser.id, ['profilePhoto']);
+    sseService.broadcastAdminUpdate('photo_uploaded', { userId: updatedUser.id });
+
   } catch (error) {
     console.error('Upload profile photo error:', error);
     res.status(500).json({ error: 'Internal server error during photo upload', details: error.message });
@@ -927,6 +946,9 @@ const saveProfilePhotoAdjustments = async (req, res) => {
         profilePhotoY: updatedUser.profilePhotoY
       }
     });
+
+    // Broadcast profile photo adjustments update
+    sseService.broadcastProfileUpdate(updatedUser.id, ['profilePhotoScale', 'profilePhotoX', 'profilePhotoY']);
 
   } catch (error) {
     console.error('Save profile photo adjustments error:', error);

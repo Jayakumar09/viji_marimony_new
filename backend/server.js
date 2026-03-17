@@ -86,6 +86,9 @@ const chatRoutes = require('./routes/chat');
 const profilePdfRoutes = require('./routes/profilePdf');
 const generateSharedProfile = require('./routes/generateSharedProfile');
 
+// SSE Service for real-time updates
+const sseService = require('./services/sseService');
+
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
@@ -102,6 +105,24 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/profile-pdf', profilePdfRoutes);
 app.use('/api/shared-profile', generateSharedProfile);
+
+// SSE endpoint for real-time updates
+app.get('/api/sse', (req, res) => {
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
+  
+  // Add client to SSE service
+  sseService.addClient(res);
+  
+  // Handle client disconnect
+  req.on('close', () => {
+    console.log('SSE client disconnected');
+  });
+});
 // app.use('/api/phonepe', phonepeRoutes); // PhonePe integration not implemented - using manual payments
 
 // Error handling middleware

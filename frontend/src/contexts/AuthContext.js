@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
+import { useRealTime } from './RealTimeContext';
 
 const AuthContext = createContext();
 
@@ -14,6 +15,32 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { onProfileUpdate, isConnected } = useRealTime();
+
+  // Handle profile updates from real-time events
+  useEffect(() => {
+    if (onProfileUpdate && user) {
+      onProfileUpdate((data) => {
+        console.log('[AuthContext] Profile update received:', data);
+        // Check if the update is for the current user
+        if (data.userId === user.id) {
+          // Refresh user data
+          fetchFreshUserData();
+        }
+      });
+    }
+  }, [onProfileUpdate, user]);
+
+  // Fetch fresh user data
+  const fetchFreshUserData = useCallback(async () => {
+    try {
+      const response = await api.get('/auth/me');
+      setUser(response.data.user);
+      console.log('[AuthContext] User data refreshed automatically');
+    } catch (error) {
+      console.error('[AuthContext] Failed to refresh user data:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -92,12 +119,7 @@ export const AuthProvider = ({ children }) => {
       setUser(prev => prev ? { ...prev, ...updatedUser } : updatedUser);
     } else {
       // Fetch fresh user data from server
-      try {
-        const response = await api.get('/auth/me');
-        setUser(response.data.user);
-      } catch (error) {
-        console.error('Failed to refresh user data:', error);
-      }
+      await fetchFreshUserData();
     }
   };
 

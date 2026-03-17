@@ -1,4 +1,5 @@
 const { prisma } = require('../utils/database');
+const sseService = require('../services/sseService');
 
 // Admin middleware
 const adminMiddleware = async (req, res, next) => {
@@ -120,6 +121,11 @@ const approvePhoto = async (req, res) => {
     await checkPhotoVerificationStatus(photo.userId);
     
     res.json({ message: 'Photo approved successfully' });
+
+    // Broadcast photo approval to the user
+    sseService.broadcastProfileUpdate(photo.userId, ['photoApproved']);
+    sseService.broadcastAdminUpdate('photo_approved', { userId: photo.userId, photoId: id });
+
   } catch (error) {
     console.error('Approve photo error:', error);
     res.status(500).json({ error: 'Failed to approve photo' });
@@ -301,6 +307,11 @@ const verifyUser = async (req, res) => {
         isVerified: true
       }
     });
+
+    // Broadcast user verification to the user
+    sseService.broadcastProfileUpdate(id, ['isVerified', 'photosVerified']);
+    sseService.broadcastAdminUpdate('user_verified', { userId: id });
+
   } catch (error) {
     console.error('Verify user error:', error);
     res.status(500).json({ error: 'Failed to verify user' });

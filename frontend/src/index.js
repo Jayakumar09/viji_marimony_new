@@ -9,6 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import App from './App';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { RealTimeProvider } from './contexts/RealTimeContext';
 
 const theme = createTheme({
   palette: {
@@ -55,7 +56,9 @@ root.render(
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthProvider>
-            <App />
+            <RealTimeProvider>
+              <App />
+            </RealTimeProvider>
             <Toaster 
               position="top-right" 
               toastOptions={{
