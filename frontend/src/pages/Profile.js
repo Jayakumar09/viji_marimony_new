@@ -51,7 +51,8 @@ import {
   Verified,
   Star,
   Description,
-  CheckCircle
+  CheckCircle,
+  Refresh
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
 import profileService from '../services/profileService';
@@ -173,6 +174,38 @@ const Profile = () => {
     fetchProfile();
   }, [user, navigate]);
 
+  // Auto-refresh profile when tab becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      console.log('[Profile] Visibility changed:', document.visibilityState);
+      if (document.visibilityState === 'visible') {
+        // Refresh profile data when user switches back to this tab
+        fetchProfile();
+      }
+    };
+
+    // Also handle window focus event as backup
+    const handleFocus = () => {
+      console.log('[Profile] Window focused');
+      fetchProfile();
+    };
+
+    // Polling fallback - check every 30 seconds as backup
+    const pollingInterval = setInterval(() => {
+      console.log('[Profile] Polling refresh');
+      fetchProfile();
+    }, 30000);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(pollingInterval);
+    };
+  }, []);
+
   // Update available cities when state changes
   useEffect(() => {
     if (selectedState) {
@@ -281,6 +314,7 @@ const Profile = () => {
       const response = await profileService.updateHoroscope(data);
       const updatedUser = response.user;
       setProfileData(prev => ({ ...prev, ...updatedUser }));
+      updateUser(updatedUser); // Update AuthContext for Dashboard
       setEditingHoroscope(false);
       setSuccess('Horoscope details updated successfully!');
       toast.success('Horoscope details updated!');
@@ -299,6 +333,7 @@ const Profile = () => {
       const response = await profileService.updateFamilyBackground(data);
       const updatedUser = response.user;
       setProfileData(prev => ({ ...prev, ...updatedUser }));
+      updateUser(updatedUser); // Update AuthContext for Dashboard
       setEditingFamily(false);
       setSuccess('Family background updated successfully!');
       toast.success('Family background updated!');
@@ -318,6 +353,7 @@ const Profile = () => {
         const response = await profileService.updateSubscription({ subscriptionTier: tier });
         const updatedUser = response.user;
         setProfileData(prev => ({ ...prev, ...updatedUser }));
+        updateUser(updatedUser); // Update AuthContext for Dashboard
         setSuccess(`Subscription updated to ${tier} successfully!`);
         toast.success(`Subscription updated to ${tier}!`);
       } catch (error) {
@@ -626,6 +662,15 @@ const Profile = () => {
             My Profile
           </Typography>
           <Box>
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={fetchProfile}
+              disabled={loading}
+              sx={{ borderColor: '#8B5CF6', color: '#8B5CF6', mr: 1 }}
+            >
+              Refresh
+            </Button>
             {!editing && (
               <Button
                 variant="contained"

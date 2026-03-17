@@ -25,6 +25,7 @@ const Footer = () => {
               <Link href="/search" color="inherit" underline="hover">Search Profiles</Link>
               <Link href="/about" color="inherit" underline="hover">About Us</Link>
               <Link href="/contact" color="inherit" underline="hover">Contact</Link>
+              <Link href="/terms" color="inherit" underline="hover">Terms & Conditions</Link>
             </Box>
           </Box>
 

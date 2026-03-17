@@ -1,17 +1,88 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Container, Paper, Grid, Button, Avatar, CircularProgress } from '@mui/material';
 import { Person, Search, Message, FavoriteBorder, SupportAgent, Refresh } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getImageUrl } from '../utils/imageUrl';
 import { normalizeTier, getTierDisplayName, canUpgrade, isPaidTier } from '../utils/subscription';
+import api from '../services/api';
 
 const Dashboard = () => {
   const { user, loading, updateUser } = useAuth();
   const navigate = useNavigate();
+  const [refreshing, setRefreshing] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+
+  // Fetch fresh profile data for accurate completion calculation
+  const fetchProfileData = async () => {
+    try {
+      const response = await api.get('/profile');
+      setProfileData(response.data.user);
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch profile data:', error);
+    }
+  };
+
+  // Auto-refresh user data when tab becomes visible again
+  useEffect(() => {
+    let isRefreshing = false;
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isRefreshing) {
+        isRefreshing = true;
+        setRefreshing(true);
+        // Add small delay to ensure state update
+        setTimeout(() => {
+          Promise.all([
+            updateUser(),
+            fetchProfileData()
+          ]).finally(() => {
+            isRefreshing = false;
+            setRefreshing(false);
+          });
+        }, 100);
+      }
+    };
+
+    // Also refresh on window focus
+    const handleFocus = () => {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        setRefreshing(true);
+        setTimeout(() => {
+          Promise.all([
+            updateUser(),
+            fetchProfileData()
+          ]).finally(() => {
+            isRefreshing = false;
+            setRefreshing(false);
+          });
+        }, 100);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [updateUser]);
+
+  // Fetch fresh profile data on mount and when refreshing
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   const handleRefresh = async () => {
+    console.log('[Dashboard] Manual refresh triggered');
+    setRefreshing(true);
     await updateUser();
+    // Also fetch fresh profile data
+    await fetchProfileData();
+    setRefreshing(false);
+    console.log('[Dashboard] Refresh completed');
   };
 
   if (loading) {
@@ -66,6 +137,13 @@ const Dashboard = () => {
   ];
 
   const profileCompletion = () => {
+    // Use profileData from /profile API for accurate calculation, fallback to user
+    const data = profileData || user;
+    
+    // Debug log
+    console.log('[Dashboard] Calculating profile completion, using data from:', profileData ? '/profile API' : 'auth/me');
+    console.log('[Dashboard] Fields - profilePhoto:', !!data?.profilePhoto, ', photos:', !!data?.photos, ', education:', !!data?.education);
+    
     const fields = [
       'profilePhoto',
       'photos',
@@ -92,7 +170,7 @@ const Dashboard = () => {
     ];
     
     const completedFields = fields.filter(field => {
-      let value = user?.[field];
+      let value = data?.[field];
       
       // Handle photos field - could be JSON string or array
       if (field === 'photos' && value) {
@@ -107,13 +185,18 @@ const Dashboard = () => {
       if (Array.isArray(value)) {
         return value.length > 0;
       }
-      return value;
+      
+      // Check if value exists and is not empty (treat empty string, null, undefined as missing)
+      return value !== null && value !== undefined && value !== '';
     });
     
     return Math.round((completedFields.length / fields.length) * 100);
   };
 
   const getPendingFields = () => {
+    // Use profileData from /profile API for accurate calculation, fallback to user
+    const data = profileData || user;
+    
     const fields = [
       { key: 'profilePhoto', label: 'Profile Photo' },
       { key: 'photos', label: 'Gallery Photos' },
@@ -143,7 +226,7 @@ const Dashboard = () => {
     ];
     
     return fields.filter(field => {
-      let value = user?.[field.key];
+      let value = data?.[field.key];
       if (field.key === 'photos' && value) {
         try {
           const photosArray = typeof value === 'string' ? JSON.parse(value) : value;

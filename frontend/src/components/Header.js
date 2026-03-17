@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Badge, Chip, Divider } from '@mui/material';
-import { AccountCircle, Search, Message, FavoriteBorder, Verified, AdminPanelSettings, WorkspacePremium, Star, Upgrade } from '@mui/icons-material';
+import { AccountCircle, Search, Message, FavoriteBorder, Verified, AdminPanelSettings, WorkspacePremium, Star, Upgrade, Home, Info, ContactMail } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { normalizeTier, getTierBadgeColor, getTierDisplayName, canUpgrade, isPaidTier, TIER_VALUES } from '../utils/subscription';
@@ -50,6 +50,40 @@ const Header = () => {
         >
           💍 Vijayalakshmi Boyar Matrimony
         </Typography>
+
+        {/* Navigation Menu - Available for all users */}
+        <Button 
+          color="inherit" 
+          startIcon={<Home />}
+          onClick={() => navigate('/')}
+          style={{ backgroundColor: isActive('/') ? 'rgba(255,255,255,0.2)' : 'transparent' }}
+        >
+          Home
+        </Button>
+        <Button 
+          color="inherit" 
+          startIcon={<Search />}
+          onClick={() => navigate('/search')}
+          style={{ backgroundColor: isActive('/search') ? 'rgba(255,255,255,0.2)' : 'transparent' }}
+        >
+          Search Profiles
+        </Button>
+        <Button 
+          color="inherit" 
+          startIcon={<Info />}
+          onClick={() => navigate('/about')}
+          style={{ backgroundColor: isActive('/about') ? 'rgba(255,255,255,0.2)' : 'transparent' }}
+        >
+          About
+        </Button>
+        <Button 
+          color="inherit" 
+          startIcon={<ContactMail />}
+          onClick={() => navigate('/contact')}
+          style={{ backgroundColor: isActive('/contact') ? 'rgba(255,255,255,0.2)' : 'transparent' }}
+        >
+          Contact
+        </Button>
 
         {user ? (
           <Box display="flex" alignItems="center" gap={2}>

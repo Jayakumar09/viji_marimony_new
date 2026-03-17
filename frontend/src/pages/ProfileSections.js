@@ -1,6 +1,16 @@
 // Profile section components - extracted from Profile.js for better organization
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
+
+// Sub Caste options
+const SUBCASTE_OPTIONS = [
+  'Boyas',
+  'Kal Oddars',
+  'Sooramari Oddars',
+  'Nellorepet Oddars',
+  'Mannu Oddars',
+  'Other'
+];
 import {
   Box,
   Typography,
@@ -32,7 +42,8 @@ import {
   Chip,
   Divider,
   Tabs,
-  Tab
+  Tab,
+  Autocomplete
 } from '@mui/material';
 import {
   Person,
@@ -363,27 +374,22 @@ export const BasicInfoSection = ({ register, errors, editing, control, profileDa
           name="subCaste"
           control={control}
           render={({ field }) => (
-            <FormControl fullWidth>
-              <InputLabel>Sub Caste</InputLabel>
-              <Select
-                {...field}
-                label="Sub Caste"
-                disabled={!editing}
-                value={field.value || ''}
-              >
-                <MenuItem value="Vijayalakshmi">Vijayalakshmi</MenuItem>
-                <MenuItem value="Telugu">Telugu</MenuItem>
-                <MenuItem value="Tamil">Tamil</MenuItem>
-                <MenuItem value="Kannada">Kannada</MenuItem>
-                <MenuItem value="Malayalam">Malayalam</MenuItem>
-                <MenuItem value="Marathi">Marathi</MenuItem>
-                <MenuItem value="Gujarati">Gujarati</MenuItem>
-                <MenuItem value="Punjabi">Punjabi</MenuItem>
-                <MenuItem value="Hindi">Hindi</MenuItem>
-                <MenuItem value="Bengali">Bengali</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </Select>
-            </FormControl>
+            <Autocomplete
+              freeSolo
+              options={SUBCASTE_OPTIONS}
+              value={field.value || ''}
+              onChange={(event, newValue) => {
+                field.onChange(newValue || '');
+              }}
+              disabled={!editing}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Sub Caste"
+                  variant="outlined"
+                />
+              )}
+            />
           )}
         />
       </Grid>
