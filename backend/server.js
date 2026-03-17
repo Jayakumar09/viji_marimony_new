@@ -19,8 +19,30 @@ const PORT = process.env.PORT || 5001;
 app.set('trust proxy', 1);
 
 // CORS configuration - MUST be before other middleware for preflight requests
+// Use CORS_ORIGIN env var, defaults to localhost for development
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+
+// Support multiple origins for both dev and production
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://3000',
+  /\.vercel\.app$/,
+  'https://vijayalakshmiboyarmatrimony.com',
+  'https://www.vijayalakshmiboyarmatrimony.com'
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(allowed => 
+      typeof allowed === 'string' ? allowed === origin : allowed.test(origin)
+    )) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'admin-token', 'x-admin-token', 'x-admin-user']
