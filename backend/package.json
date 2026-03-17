@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backend API for Vijayalakshmi Boyar Matrimony App",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.x"
+  },
   "prisma": {
     "seed": "node prisma/seed.js"
   },
