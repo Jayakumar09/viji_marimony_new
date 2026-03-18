@@ -168,6 +168,20 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
+/* -------------------- SERVER LISTENING (for local/Render) -------------------- */
+
+// Only start server if not in serverless environment
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+if (!isServerless) {
+  const PORT = process.env.PORT || 5001;
+  
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`🏠 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  });
+}
+
 /* -------------------- EXPORT FOR VERCEL -------------------- */
 
 module.exports = app;
