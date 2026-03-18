@@ -19,8 +19,8 @@ const PORT = process.env.PORT || 5001;
 app.set('trust proxy', 1);
 
 // CORS configuration - MUST be before other middleware for preflight requests
-// Use CORS_ORIGIN env var, defaults to localhost for development
-const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+// Use CORS_ORIGIN env var, defaults to production Vercel URL for deployment
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app';
 
 // Support multiple origins for both dev and production
 const allowedOrigins = [
@@ -28,6 +28,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'https://3000',
   /\.vercel\.app$/,
+  'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app',
   'https://vijayalakshmiboyarmatrimony.com',
   'https://www.vijayalakshmiboyarmatrimony.com'
 ];
@@ -255,7 +256,7 @@ async function startServer() {
         console.log(`\n✅ Database: Connected Successfully`);
         console.log(`🚀 Server running on port ${PORT}`);
         console.log(`📧 Admin contact: vijayalakshmijayakumar45@gmail.com`);
-        console.log(`🏠 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+        console.log(`🏠 Frontend URL: ${process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app'}`);
         
         // Initialize AI Verification Services
         try {

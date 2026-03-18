@@ -26,7 +26,7 @@ const fetchImageAsBuffer = async (imageUrl) => {
     // Handle relative URLs - prepend server URL
     let url = imageUrl;
     if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
-      const serverUrl = process.env.SERVER_URL || 'http://localhost:5001';
+      const serverUrl = process.env.SERVER_URL || 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app';
       url = `${serverUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
     }
     

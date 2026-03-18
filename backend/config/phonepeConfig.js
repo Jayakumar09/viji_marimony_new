@@ -32,8 +32,8 @@ module.exports = {
   },
 
   // Application URLs
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
-  backendUrl: process.env.BACKEND_URL || 'http://localhost:5000',
+  frontendUrl: process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app',
+  backendUrl: process.env.BACKEND_URL || 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app',
 
   // Callback Configuration
   callback: {
