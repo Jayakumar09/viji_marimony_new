@@ -21,6 +21,9 @@ import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import PasswordField from '../components/PasswordField';
 
+// Get API base URL from environment
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://viji-marimony-new.onrender.com';
+
 const ADMIN_EMAIL = 'vijayalakshmijayakumar45@gmail.com';
 
 const Login = () => {
@@ -43,7 +46,7 @@ const Login = () => {
       // Check if admin login
       if (data.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         // Admin login
-        const response = await fetch('/api/auth/admin/login', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email, password: data.password })
@@ -97,7 +100,7 @@ const Login = () => {
 
     setForgotLoading(true);
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
