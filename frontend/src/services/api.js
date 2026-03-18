@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://viji-marimony-new.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app';
 
 // Create axios instance with default config
 const api = axios.create({

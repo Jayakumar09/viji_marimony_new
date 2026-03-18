@@ -1,5 +1,5 @@
 // Backend URL for image serving
-const BACKEND_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : 'https://viji-marimony-new.onrender.com';
+const BACKEND_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app';
 
 // Helper to construct full image URLs via backend
 export const getImageUrl = (imagePath) => {

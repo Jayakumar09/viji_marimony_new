@@ -5,8 +5,8 @@ const RealTimeContext = createContext();
 
 // Get API base URL
 const getApiBaseUrl = () => {
-  // Priority: environment variable > fallback to Render backend
-  const backendUrl = process.env.REACT_APP_API_URL || 'https://viji-marimony-new.onrender.com';
+  // Priority: environment variable > fallback to Vercel backend
+  const backendUrl = process.env.REACT_APP_API_URL || 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app';
   // Remove /api suffix if present to get base URL
   return backendUrl.replace(/\/$/, '').replace(/\/api$/, '');
 };
