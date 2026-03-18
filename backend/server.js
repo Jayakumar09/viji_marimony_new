@@ -19,31 +19,8 @@ app.set('trust proxy', 1);
 
 /* -------------------- CORS -------------------- */
 
-const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app';
-
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  /\.vercel\.app$/,
-  /\.render\.com$/,
-  'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app',
-  'https://vijayalakshmiboyarmatrimony.com',
-  'https://www.vijayalakshmiboyarmatrimony.com'
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.some(allowed =>
-      typeof allowed === 'string' ? allowed === origin : allowed.test(origin)
-    )) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
+// Allow all origins for development
+app.use(cors());
 
 /* -------------------- MIDDLEWARE -------------------- */
 
