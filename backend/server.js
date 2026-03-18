@@ -174,7 +174,7 @@ app.use('*', (req, res) => {
 const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 if (!isServerless) {
-  const PORT = process.env.PORT || 5001;
+  const PORT = process.env.PORT || 5000;
   
   app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
