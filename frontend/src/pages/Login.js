@@ -22,7 +22,7 @@ import toast from 'react-hot-toast';
 import PasswordField from '../components/PasswordField';
 
 // Get API base URL from environment
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://viji-marimony-new.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') : 'https://viji-marimony-new.onrender.com';
 
 const ADMIN_EMAIL = 'vijayalakshmijayakumar45@gmail.com';
 
