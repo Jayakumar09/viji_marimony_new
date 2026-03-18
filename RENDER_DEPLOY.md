@@ -44,8 +44,8 @@ Add these in Render dashboard:
 NODE_ENV=production
 PORT=10000
 
-# Database - Create PostgreSQL in Render and get the URL
-DATABASE_URL=postgresql://user:password@host:5432/database
+# Database - Using AWS RDS PostgreSQL (your existing database)
+DATABASE_URL=postgresql://vijiadmindb:%234d%23Eyb%5EEX%28b%29@viji-postgres-db.czomeo4s8s2e.ap-south-2.rds.amazonaws.com:5432/postgres?sslmode=require
 
 # JWT Configuration - Generate secure secrets
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
