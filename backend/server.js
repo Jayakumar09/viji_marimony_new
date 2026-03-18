@@ -19,10 +19,13 @@ app.set('trust proxy', 1);
 
 /* -------------------- CORS -------------------- */
 
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app';
+
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   /\.vercel\.app$/,
+  /\.render\.com$/,
   'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app',
   'https://vijayalakshmiboyarmatrimony.com',
   'https://www.vijayalakshmiboyarmatrimony.com'

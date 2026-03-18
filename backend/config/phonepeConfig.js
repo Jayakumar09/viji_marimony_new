@@ -32,8 +32,9 @@ module.exports = {
   },
 
   // Application URLs
+  // Frontend: Vercel, Backend: Render
   frontendUrl: process.env.FRONTEND_URL || 'https://viji-marimony-bpagfyjkk-jayakumar09s-projects.vercel.app',
-  backendUrl: process.env.BACKEND_URL || 'https://viji-marimony-new-backend-jnp2kqf0j-jayakumar09s-projects.vercel.app',
+  backendUrl: process.env.BACKEND_URL || 'https://viji-marimony-backend.onrender.com',
 
   // Callback Configuration
   callback: {
