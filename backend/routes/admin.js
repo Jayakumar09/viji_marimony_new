@@ -77,6 +77,21 @@ router.use(adminMiddleware);
 // Dashboard
 router.get('/dashboard', getDashboardStats);
 
+// Activity Logs
+router.get('/logs', async (req, res) => {
+  try {
+    const { prisma } = require('../utils/database');
+    const logs = await prisma.adminActivityLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100
+    });
+    res.json({ logs });
+  } catch (error) {
+    console.error('Error fetching logs:', error);
+    res.status(500).json({ error: 'Failed to fetch logs' });
+  }
+});
+
 // Photo verification routes
 router.get('/photos/pending', getPendingVerifications);
 router.put('/photos/:id/approve', approvePhoto);
