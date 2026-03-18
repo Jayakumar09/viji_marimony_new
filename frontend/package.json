@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Frontend React app for Vijayalakshmi Boyar Matrimony",
   "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -47,5 +50,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000"
+  "proxy": "https://viji-marimony-new.onrender.com"
 }
