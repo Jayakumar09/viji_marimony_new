@@ -174,20 +174,27 @@ const Profile = () => {
     fetchProfile();
   }, [user, navigate]);
 
-  // Auto-refresh profile when tab becomes visible again
+  // Auto-refresh profile - ONLY when NOT editing
+  // Fetch is paused while user is in edit mode and only resumes after Save/Cancel
   useEffect(() => {
+    // Only fetch when NOT editing - user must manually save to refresh
+    if (editing) {
+      console.log('[Profile] Skipping fetch - user is editing');
+      return;
+    }
+
     const handleVisibilityChange = () => {
-      console.log('[Profile] Visibility changed:', document.visibilityState);
-      if (document.visibilityState === 'visible') {
-        // Refresh profile data when user switches back to this tab
+      if (!editing && document.visibilityState === 'visible') {
+        console.log('[Profile] Visibility changed - refresh');
         fetchProfile();
       }
     };
 
-    // Polling - check every 60 seconds to reduce API load
+    // No polling while editing - only refresh on save
     const pollingInterval = setInterval(() => {
-      console.log('[Profile] Polling refresh');
-      fetchProfile();
+      if (!editing) {
+        fetchProfile();
+      }
     }, 60000);
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -196,7 +203,7 @@ const Profile = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       clearInterval(pollingInterval);
     };
-  }, []);
+  }, [editing]);
 
   // Update available cities when state changes
   useEffect(() => {
