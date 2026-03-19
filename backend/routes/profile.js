@@ -64,9 +64,26 @@ router.post('/photo', (req, res, next) => {
   uploadSingle(req, res, (err) => {
     if (err) {
       console.error('Multer error (profile photo):', err);
+      
+      // Provide more specific error messages
+      let errorMessage = 'File upload failed';
+      let errorDetails = err.message;
+      
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        errorMessage = 'File too large. Maximum size is 5MB.';
+        errorDetails = 'File size exceeded the 5MB limit';
+      } else if (err.message.includes('Only image files')) {
+        errorMessage = 'Invalid file type. Please upload an image file (jpg, png, gif, webp).';
+        errorDetails = err.message;
+      } else if (err.message.includes('Unexpected field')) {
+        errorMessage = 'Upload field name error. Expected "photo" field.';
+        errorDetails = err.message;
+      }
+      
       return res.status(400).json({ 
-        error: 'File upload failed', 
-        details: err.message 
+        error: errorMessage, 
+        details: errorDetails,
+        code: err.code
       });
     }
     next();

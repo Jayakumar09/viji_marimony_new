@@ -18,7 +18,10 @@ const isCloudinaryConfigured = () => {
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
   
   // Check if all required variables exist and have valid values (not placeholders)
-  if (!cloudName || !apiKey || !apiSecret) return false;
+  if (!cloudName || !apiKey || !apiSecret) {
+    console.warn('Cloudinary not configured: missing configuration values');
+    return false;
+  }
   
   // Check for common placeholder patterns
   const isPlaceholder = apiSecret.includes('your_') || 
@@ -26,6 +29,10 @@ const isCloudinaryConfigured = () => {
                        apiSecret.length < 10 ||
                        cloudName.includes('your_') ||
                        cloudName.includes('_here');
+  
+  if (isPlaceholder) {
+    console.warn('Cloudinary not configured: using placeholder values');
+  }
   
   return !isPlaceholder;
 };
@@ -48,13 +55,27 @@ if (isCloudinaryConfigured()) {
 } else {
   // Use local uploads folder when Cloudinary not configured
   const uploadDir = path.join(__dirname, '../uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+  
+  // Try to create the uploads directory
+  try {
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    console.log('Note: Using local uploads folder for file storage');
+  } catch (dirError) {
+    console.error('Failed to create uploads directory:', dirError);
   }
-  console.log('Note: Using local uploads folder for file storage');
+  
   storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, uploadDir);
+      // Check if directory is writable
+      try {
+        fs.accessSync(uploadDir, fs.W_OK);
+        cb(null, uploadDir);
+      } catch (accessError) {
+        console.error('Upload directory not writable:', accessError);
+        cb(new Error('Upload directory is not writable. Please configure Cloudinary for file uploads.'), null);
+      }
     },
     filename: (req, file, cb) => {
       const userId = req.user?.id || 'unknown';

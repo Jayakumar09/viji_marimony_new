@@ -122,8 +122,10 @@ export const ProfilePhotoSection = ({
               objectFit: 'cover',
               objectPosition: 'center',
               transform: isEditingPhoto 
-                ? `scale(${photoScale || 1}) translate(${((photoPosX || 0) / (photoScale || 1))}px, ${((photoPosY || 0) / (photoScale || 1))}px)`
-                : 'none',
+                ? `scale(${photoScale || 1}) translate(${((photoPosX || 0))}px, ${((photoPosY || 0))}px)`
+                : profileData.profilePhotoScale 
+                  ? `scale(${profileData.profilePhotoScale || 1}) translate(${((profileData.profilePhotoX || 0))}px, ${((profileData.profilePhotoY || 0))}px)`
+                  : 'none',
               transition: 'transform 0.1s ease'
             }}
             draggable={false}
@@ -170,37 +172,50 @@ export const ProfilePhotoSection = ({
         </Box>
       </Box>
 
-      {/* Photo adjustment controls */}
-      {isEditingPhoto && (
+      {/* Photo adjustment controls - show when editing OR when adjustments exist */}
+      {(isEditingPhoto || (profileData?.profilePhotoScale && profileData.profilePhotoScale !== 1)) && (
         <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Typography variant="caption" display="block" gutterBottom>
-            Zoom: {(photoScale * 100).toFixed(0)}%
-          </Typography>
-          <input
-            type="range"
-            min="1"
-            max="3"
-            step="0.1"
-            value={photoScale}
-            onChange={(e) => setPhotoScale(parseFloat(e.target.value))}
-            style={{ width: '200px' }}
-          />
-          <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: 'center' }}>
-            <Button size="small" onClick={resetPhotoAdjustments}>
-              Reset
-            </Button>
-            <Button
-              size="small"
-              variant="contained"
-              onClick={savePhotoAdjustments}
-              sx={{ bgcolor: '#8B5CF6', '&:hover': { bgcolor: '#7C3AED' } }}
+          {isEditingPhoto ? (
+            <>
+              <Typography variant="caption" display="block" gutterBottom>
+                Zoom: {((photoScale || 1) * 100).toFixed(0)}%
+              </Typography>
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.1"
+                value={photoScale || 1}
+                onChange={(e) => setPhotoScale(parseFloat(e.target.value))}
+                style={{ width: '200px' }}
+              />
+              <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: 'center' }}>
+                <Button size="small" onClick={resetPhotoAdjustments}>
+                  Reset
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={savePhotoAdjustments}
+                  sx={{ bgcolor: '#8B5CF6', '&:hover': { bgcolor: '#7C3AED' } }}
+                >
+                  Save
+                </Button>
+                <Button size="small" onClick={() => setIsEditingPhoto(false)}>
+                  Done
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Button 
+              size="small" 
+              variant="outlined"
+              onClick={() => setIsEditingPhoto(true)}
+              sx={{ mt: 1 }}
             >
-              Save
+              Adjust Photo
             </Button>
-            <Button size="small" onClick={() => setIsEditingPhoto(false)}>
-              Cancel
-            </Button>
-          </Box>
+          )}
         </Box>
       )}
 

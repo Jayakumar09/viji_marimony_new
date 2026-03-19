@@ -69,7 +69,20 @@ const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const cloudApiKey = process.env.CLOUDINARY_API_KEY;
 const cloudApiSecret = process.env.CLOUDINARY_API_SECRET;
 
-if (cloudName && cloudApiKey && cloudApiSecret) {
+// Check if Cloudinary is properly configured with real values (not placeholders)
+const isCloudinaryConfigured = () => {
+  if (!cloudName || !cloudApiKey || !cloudApiSecret) return false;
+  
+  const isPlaceholder = cloudApiSecret.includes('your_') || 
+                       cloudApiSecret.includes('_here') ||
+                       cloudApiSecret.length < 10 ||
+                       cloudName.includes('your_') ||
+                       cloudName.includes('_here');
+  
+  return !isPlaceholder;
+};
+
+if (isCloudinaryConfigured()) {
   cloudinary.config({
     cloud_name: cloudName,
     api_key: cloudApiKey,
@@ -77,7 +90,8 @@ if (cloudName && cloudApiKey && cloudApiSecret) {
   });
   console.log(`✅ Cloudinary configured`);
 } else {
-  console.log('⚠️ Cloudinary not configured');
+  console.log('⚠️ Cloudinary NOT configured - File uploads will use local storage (not recommended for production)');
+  console.log('⚠️ Please set CLOUDINARY_API_SECRET in environment variables for production use');
 }
 
 /* -------------------- STATIC (NOT RECOMMENDED ON VERCEL) -------------------- */

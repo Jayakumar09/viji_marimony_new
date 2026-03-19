@@ -184,24 +184,16 @@ const Profile = () => {
       }
     };
 
-    // Also handle window focus event as backup
-    const handleFocus = () => {
-      console.log('[Profile] Window focused');
-      fetchProfile();
-    };
-
-    // Polling fallback - check every 30 seconds as backup
+    // Polling - check every 60 seconds to reduce API load
     const pollingInterval = setInterval(() => {
       console.log('[Profile] Polling refresh');
       fetchProfile();
-    }, 30000);
+    }, 60000);
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
       clearInterval(pollingInterval);
     };
   }, []);
@@ -269,8 +261,18 @@ const Profile = () => {
       }
       setAvailableCities(citiesForState);
 
-      setProfileData(normalized);
-      reset(normalized);
+      // Only reset form if user is NOT currently editing
+      // This prevents overwriting unsaved changes during polling/visibility changes
+      if (!editing) {
+        setProfileData(normalized);
+        reset(normalized);
+      } else {
+        // Still update profileData but don't reset form while editing
+        setProfileData(prev => {
+          // Merge with existing data to preserve any unsaved form changes
+          return { ...prev, ...normalized };
+        });
+      }
     } catch (error) {
       setError('Failed to load profile data');
     } finally {
