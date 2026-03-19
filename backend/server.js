@@ -151,12 +151,14 @@ app.get('/api/test-email', (req, res) => {
 app.get('/api/test-email-send', async (req, res) => {
   const nodemailer = require('nodemailer');
   const testTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     },
-    connectionTimeout: 10000
+    connectionTimeout: 15000
   });
   
   try {

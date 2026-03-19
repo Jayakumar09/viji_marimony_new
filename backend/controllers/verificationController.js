@@ -4,13 +4,14 @@ const nodemailer = require('nodemailer');
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  secure: true,
-  connectionTimeout: 10000
+  connectionTimeout: 15000
 });
 
 // Log email config on startup (without password)
