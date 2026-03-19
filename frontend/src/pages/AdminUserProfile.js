@@ -74,30 +74,19 @@ const AdminUserProfile = () => {
     }
   }, [id]);
 
-  // Auto-refresh profile when tab becomes visible again
+  // Auto-refresh profile - only when tab becomes visible (not on focus)
   useEffect(() => {
     const handleVisibilityChange = () => {
       console.log('[AdminUserProfile] Visibility changed:', document.visibilityState);
       if (document.visibilityState === 'visible' && id) {
-        // Refresh profile data when user switches back to this tab
-        fetchUserProfile();
-      }
-    };
-
-    // Also handle window focus event as backup
-    const handleFocus = () => {
-      console.log('[AdminUserProfile] Window focused');
-      if (id) {
         fetchUserProfile();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
     };
   }, [id]);
 

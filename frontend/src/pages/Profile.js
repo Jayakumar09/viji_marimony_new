@@ -174,17 +174,21 @@ const Profile = () => {
     fetchProfile();
   }, [user, navigate]);
 
-  // Auto-refresh profile - ONLY when NOT editing
-  // Fetch is paused while user is in edit mode and only resumes after Save/Cancel
+  // Auto-refresh profile - ONLY when NOT editing ANY section
+  // Fetch is paused while user is in ANY edit mode and only resumes after Save/Cancel
   useEffect(() => {
-    // Only fetch when NOT editing - user must manually save to refresh
-    if (editing) {
+    // Check if user is editing ANY section
+    const isAnyEditing = editing || editingHoroscope || editingFamily || editingSubscription || editingDocuments;
+    
+    // Only fetch when NOT editing ANY section
+    if (isAnyEditing) {
       console.log('[Profile] Skipping fetch - user is editing');
       return;
     }
 
     const handleVisibilityChange = () => {
-      if (!editing && document.visibilityState === 'visible') {
+      const currentlyEditing = editing || editingHoroscope || editingFamily || editingSubscription || editingDocuments;
+      if (!currentlyEditing && document.visibilityState === 'visible') {
         console.log('[Profile] Visibility changed - refresh');
         fetchProfile();
       }
@@ -192,7 +196,8 @@ const Profile = () => {
 
     // No polling while editing - only refresh on save
     const pollingInterval = setInterval(() => {
-      if (!editing) {
+      const currentlyEditing = editing || editingHoroscope || editingFamily || editingSubscription || editingDocuments;
+      if (!currentlyEditing) {
         fetchProfile();
       }
     }, 60000);
@@ -203,7 +208,7 @@ const Profile = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       clearInterval(pollingInterval);
     };
-  }, [editing]);
+  }, [editing, editingHoroscope, editingFamily, editingSubscription, editingDocuments]);
 
   // Update available cities when state changes
   useEffect(() => {

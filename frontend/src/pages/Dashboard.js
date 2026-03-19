@@ -23,30 +23,12 @@ const Dashboard = () => {
     }
   };
 
-  // Auto-refresh user data when tab becomes visible again
+  // Auto-refresh user data - only when tab becomes visible (not on every focus)
   useEffect(() => {
     let isRefreshing = false;
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !isRefreshing) {
-        isRefreshing = true;
-        setRefreshing(true);
-        // Add small delay to ensure state update
-        setTimeout(() => {
-          Promise.all([
-            updateUser(),
-            fetchProfileData()
-          ]).finally(() => {
-            isRefreshing = false;
-            setRefreshing(false);
-          });
-        }, 100);
-      }
-    };
-
-    // Also refresh on window focus
-    const handleFocus = () => {
-      if (!isRefreshing) {
         isRefreshing = true;
         setRefreshing(true);
         setTimeout(() => {
@@ -62,11 +44,9 @@ const Dashboard = () => {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
     };
   }, [updateUser]);
 
