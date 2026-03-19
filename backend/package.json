@@ -4,7 +4,7 @@
   "description": "Backend API for Vijayalakshmi Boyar Matrimony App",
   "main": "server.js",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "v20.20.1"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
