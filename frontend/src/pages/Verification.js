@@ -66,16 +66,11 @@ const Verification = () => {
         data = await verificationService.sendPhoneOTP(phoneValue, fallbackEmail);
       }
       
-      setMessage(`OTP sent to your ${data.sentVia === 'email' ? 'email' : activeTab}${data.sentVia === 'email' ? ' (SMS unavailable)' : ''}${data.debugOtp ? ` | OTP: ${data.debugOtp}` : ''}`);
+      setMessage(`OTP sent to your ${data.sentVia === 'email' ? 'email' : activeTab}${data.sentVia === 'email' ? ' (SMS unavailable)' : ''}`);
       setLastOtpMethod(data.sentVia || activeTab);
       setResendTimer(60);
       setShowFallback(false);
       setOtpSent(true);
-      
-      // Also log OTP to console for debugging
-      if (data.debugOtp) {
-        console.log('🔐 OTP for verification:', data.debugOtp);
-      }
     } catch (err) {
       setError(err.error || `Failed to send ${activeTab} OTP`);
     } finally {

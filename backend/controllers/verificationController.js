@@ -104,10 +104,7 @@ const sendOTPEmail = async (req, res) => {
     
     // Return success immediately - don't wait for email
     res.json({ 
-      message: 'OTP sent to your email',
-      // Always include OTP in response for debugging
-      debugOtp: otp,
-      ...(process.env.NODE_ENV === 'development' && { otp })
+      message: 'OTP sent to your email'
     });
     
   } catch (error) {
@@ -258,10 +255,7 @@ const sendPhoneOTP = async (req, res) => {
     
     res.json({ 
       message: smsSent ? 'OTP sent to your phone' : 'OTP sent to your email (SMS unavailable)',
-      sentVia: smsSent ? 'sms' : 'email',
-      // Always include OTP in response for debugging
-      debugOtp: otp,
-      ...(process.env.NODE_ENV === 'development' && { otp })
+      sentVia: smsSent ? 'sms' : 'email'
     });
     
   } catch (error) {
