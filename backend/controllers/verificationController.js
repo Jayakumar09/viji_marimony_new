@@ -8,7 +8,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  secure: true,
+  connectionTimeout: 10000
 });
 
 // Log email config on startup (without password)
