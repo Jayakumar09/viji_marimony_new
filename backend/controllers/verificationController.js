@@ -11,6 +11,9 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Log email config on startup (without password)
+console.log('📧 Email transporter configured with:', process.env.EMAIL_USER || 'NO EMAIL SET');
+
 // Configure Twilio (optional)
 let twilioClient = null;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
@@ -88,10 +91,10 @@ const sendOTPEmail = async (req, res) => {
     try {
       // Send email asynchronously (don't wait for it to complete)
       transporter.sendMail(mailOptions)
-        .then(() => console.log('Email sent successfully'))
-        .catch(err => console.error('Email send error (background):', err.message));
+        .then(() => console.log('✅ Email sent successfully to:', mailOptions.to))
+        .catch(err => console.error('❌ Email send error:', err.message, err.code));
     } catch (emailError) {
-      console.error('Email send error:', emailError);
+      console.error('❌ Email send exception:', emailError);
     }
     
     // Return success immediately - don't wait for email
