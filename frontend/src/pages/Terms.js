@@ -550,17 +550,6 @@ const Terms = () => {
             <Typography variant="body2"><strong>Address:</strong> Vijayalakshmi Boyar Matrimony, Tamil Nadu, India</Typography>
           </Box>
         </Paper>
-
-        {/* Footer */}
-        <Box sx={{ mt: 4, textAlign: 'center', pb: 4 }}>
-          <Typography variant="body2" color="text.secondary">
-            © {new Date().getFullYear()} Vijayalakshmi Boyar Matrimony. All rights reserved.
-          </Typography>
-          <Box sx={{ mt: 1 }}>
-            <Link href="/terms" underline="hover" sx={{ mx: 1 }}>Terms & Conditions</Link>
-            <Link href="/privacy" underline="hover" sx={{ mx: 1 }}>Privacy Policy</Link>
-          </Box>
-        </Box>
       </Container>
     </Box>
   );
