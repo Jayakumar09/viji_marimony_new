@@ -86,14 +86,15 @@ const sendOTPEmail = async (req, res) => {
     };
     
     try {
-      await transporter.sendMail(mailOptions);
+      // Send email asynchronously (don't wait for it to complete)
+      transporter.sendMail(mailOptions)
+        .then(() => console.log('Email sent successfully'))
+        .catch(err => console.error('Email send error (background):', err.message));
     } catch (emailError) {
       console.error('Email send error:', emailError);
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[DEV] Email OTP for ${email}: ${otp}`);
-      }
     }
     
+    // Return success immediately - don't wait for email
     res.json({ 
       message: 'OTP sent to your email',
       ...(process.env.NODE_ENV === 'development' && { otp })
@@ -223,8 +224,10 @@ const sendPhoneOTP = async (req, res) => {
       };
       
       try {
-        await transporter.sendMail(mailOptions);
-        console.log('[sendPhoneOTP] Email sent successfully');
+        // Send email asynchronously (don't wait for it to complete)
+        transporter.sendMail(mailOptions)
+          .then(() => console.log('[sendPhoneOTP] Email sent successfully'))
+          .catch(err => console.error('Email fallback error (background):', err.message));
       } catch (emailError) {
         console.error('Email fallback error:', emailError);
       }
