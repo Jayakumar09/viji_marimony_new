@@ -110,6 +110,61 @@ app.get('/api', (req, res) => {
   });
 });
 
+/* -------------------- KEEP-ALIVE ENDPOINT -------------------- */
+
+// This endpoint can be pinged by external services (like cron-job.org) to keep the server awake
+app.get('/api/ping', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    message: 'Server is awake'
+  });
+});
+
+// Note: For Render free tier, the server sleeps after 15 minutes of inactivity.
+// To keep it awake, set up a free cron job at https://cron-job.org
+// to ping this endpoint every 5 minutes:
+// URL: https://your-backend-url.onrender.com/api/ping
+
+/* -------------------- KEEP-ALIVE (Prevents Render from sleeping) -------------------- */
+
+// Ping the server every 5 minutes to prevent it from sleeping on Render free tier
+const KEEP_ALIVE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+function startKeepAlive() {
+  const backendUrl = process.env.BACKEND_URL || process.env.RENDER_EXTERNAL_URL;
+  
+  if (backendUrl) {
+    console.log(`🔄 Starting keep-alive pings to: ${backendUrl}`);
+    
+    setInterval(async () => {
+      try {
+        const axios = require('axios');
+        const response = await axios.get(`${backendUrl}/api/ping`, { 
+          timeout: 10000,
+          headers: { 'User-Agent': 'Keep-Alive-Ping/1.0' }
+        });
+        console.log(`✅ Keep-alive ping successful: ${response.status}`);
+      } catch (error) {
+        console.log(`⚠️ Keep-alive ping failed: ${error.message}`);
+      }
+    }, KEEP_ALIVE_INTERVAL);
+    
+    console.log(`⏰ Keep-alive enabled: Pinging every ${KEEP_ALIVE_INTERVAL/1000} seconds`);
+  } else {
+    console.log('⚠️ BACKEND_URL not set - keep-alive disabled');
+    console.log('💡 To keep server awake on Render free tier:');
+    console.log('   1. Go to https://cron-job.org and create free account');
+    console.log('   2. Create a cron job to ping: https://your-backend.onrender.com/api/ping');
+    console.log('   3. Set interval to every 5 minutes');
+  }
+}
+
+// Start keep-alive after server is running
+if (process.env.RENDER || process.env.RENDER_EXTERNAL_URL) {
+  setTimeout(startKeepAlive, 10000); // Start 10 seconds after server starts
+}
+
 /* -------------------- ROUTES -------------------- */
 
 app.use('/api/auth', require('./routes/auth'));
