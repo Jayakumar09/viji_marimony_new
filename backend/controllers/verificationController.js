@@ -154,7 +154,10 @@ const sendPhoneOTP = async (req, res) => {
   try {
     const { phone, fallbackEmail } = req.body;
     
+    console.log('[sendPhoneOTP] Request:', { phone: phone ? 'provided' : 'not provided', fallbackEmail: fallbackEmail ? 'provided' : 'not provided', userId: req.user?.id });
+    
     if (!phone && !fallbackEmail) {
+      console.log('[sendPhoneOTP] Error: No phone or fallback email provided');
       return res.status(400).json({ error: 'Phone number or fallback email is required' });
     }
     
@@ -163,32 +166,48 @@ const sendPhoneOTP = async (req, res) => {
     });
     
     if (!user) {
+      console.log('[sendPhoneOTP] Error: User not found');
       return res.status(404).json({ error: 'User not found' });
     }
     
-    const otp = setOTP(phone || fallbackEmail, 'phone');
+    console.log('[sendPhoneOTP] User found, phone:', user.phone);
+    
+    // Use user's saved phone if not provided in request
+    const phoneToUse = phone || user.phone;
+    const emailToUse = fallbackEmail || user.email;
+    
+    if (!phoneToUse && !emailToUse) {
+      console.log('[sendPhoneOTP] Error: No phone or email available');
+      return res.status(400).json({ error: 'No phone number or email available for verification' });
+    }
+    
+    const otp = setOTP(phoneToUse || emailToUse, 'phone');
+    console.log('[sendPhoneOTP] OTP generated for:', phoneToUse || emailToUse);
     
     // Try sending via Twilio SMS first
     let smsSent = false;
-    if (twilioClient && phone) {
+    if (twilioClient && phoneToUse) {
       try {
         await twilioClient.messages.create({
           body: `Your Vijayalakshmi Boyar Matrimony OTP is: ${otp}. Valid for 10 minutes.`,
           from: process.env.TWILIO_PHONE_NUMBER,
-          to: phone
+          to: phoneToUse
         });
         smsSent = true;
+        console.log('[sendPhoneOTP] SMS sent successfully');
       } catch (twilioError) {
         console.error('Twilio error:', twilioError.message);
       }
+    } else if (!twilioClient) {
+      console.log('[sendPhoneOTP] Twilio client not configured');
     }
     
     // Fallback to email if SMS not sent or phone not provided
     if (!smsSent) {
-      const emailToUse = fallbackEmail || user.email;
+      const emailToSend = emailToUse;
       const mailOptions = {
         from: process.env.EMAIL_USER || 'noreply@boyarmatrimony.com',
-        to: emailToUse,
+        to: emailToSend,
         subject: 'Phone Verification OTP - Vijayalakshmi Boyar Matrimony',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -205,18 +224,19 @@ const sendPhoneOTP = async (req, res) => {
       
       try {
         await transporter.sendMail(mailOptions);
+        console.log('[sendPhoneOTP] Email sent successfully');
       } catch (emailError) {
         console.error('Email fallback error:', emailError);
       }
       
       // Development mode - log OTP
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[DEV] Phone OTP (fallback email) for ${emailToUse}: ${otp}`);
+        console.log(`[DEV] Phone OTP (fallback email) for ${emailToSend}: ${otp}`);
       }
     } else {
       // Development mode - log SMS OTP
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[DEV] Phone OTP (SMS) for ${phone}: ${otp}`);
+        console.log(`[DEV] Phone OTP (SMS) for ${phoneToUse}: ${otp}`);
       }
     }
     

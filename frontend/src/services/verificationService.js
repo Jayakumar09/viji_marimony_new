@@ -8,7 +8,9 @@ export const sendEmailOTP = async (email) => {
     const response = await api.post(`${API_URL}/email/send-otp`, { email });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to send OTP' };
+    console.error('Send email OTP error:', error);
+    const errorData = error.response?.data;
+    throw errorData || { error: error.message || 'Failed to send OTP' };
   }
 };
 
@@ -18,7 +20,9 @@ export const verifyEmailOTP = async (email, otp) => {
     const response = await api.post(`${API_URL}/email/verify`, { email, otp });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to verify OTP' };
+    console.error('Verify email OTP error:', error);
+    const errorData = error.response?.data;
+    throw errorData || { error: error.message || 'Failed to verify OTP' };
   }
 };
 
@@ -28,7 +32,9 @@ export const sendPhoneOTP = async (phone, fallbackEmail) => {
     const response = await api.post(`${API_URL}/phone/send-otp`, { phone, fallbackEmail });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to send OTP' };
+    console.error('Send phone OTP error:', error);
+    const errorData = error.response?.data;
+    throw errorData || { error: error.message || 'Failed to send OTP' };
   }
 };
 
@@ -38,7 +44,9 @@ export const verifyPhoneOTP = async (phone, otp, fallbackEmail) => {
     const response = await api.post(`${API_URL}/phone/verify`, { phone, otp, fallbackEmail });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to verify OTP' };
+    console.error('Verify phone OTP error:', error);
+    const errorData = error.response?.data;
+    throw errorData || { error: error.message || 'Failed to verify OTP' };
   }
 };
 
@@ -48,7 +56,9 @@ export const getVerificationStatus = async () => {
     const response = await api.get(`${API_URL}/status`);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to get status' };
+    console.error('Get verification status error:', error);
+    const errorData = error.response?.data;
+    throw errorData || { error: error.message || 'Failed to get status' };
   }
 };
 
