@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
-const { adminMiddleware } = require('../middleware/roleMiddleware');
+const { requireAdmin } = require('../middleware/roleMiddleware');
 const { cloudinary, isCloudinaryConfigured } = require('../utils/upload');
 
 // Delete all images from a specific Cloudinary folder
 // This endpoint is for admin use only to clean up old/test images
-router.delete('/cloudinary/folder/:folderName', authMiddleware, adminMiddleware, async (req, res) => {
+router.delete('/cloudinary/folder/:folderName', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { folderName } = req.params;
 
@@ -75,7 +75,7 @@ router.delete('/cloudinary/folder/:folderName', authMiddleware, adminMiddleware,
 });
 
 // Delete a specific image by public ID
-router.delete('/cloudinary/image/:publicId', authMiddleware, adminMiddleware, async (req, res) => {
+router.delete('/cloudinary/image/:publicId', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { publicId } = req.params;
 
