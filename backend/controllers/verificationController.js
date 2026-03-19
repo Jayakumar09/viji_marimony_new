@@ -192,6 +192,9 @@ const sendPhoneOTP = async (req, res) => {
     
     // Try sending via Twilio SMS first
     let smsSent = false;
+    console.log('[sendPhoneOTP] Twilio client:', twilioClient ? 'EXISTS' : 'NOT CONFIGURED');
+    console.log('[sendPhoneOTP] Phone to use:', phoneToUse);
+    
     if (twilioClient && phoneToUse) {
       try {
         await twilioClient.messages.create({
@@ -200,12 +203,12 @@ const sendPhoneOTP = async (req, res) => {
           to: phoneToUse
         });
         smsSent = true;
-        console.log('[sendPhoneOTP] SMS sent successfully');
+        console.log('[sendPhoneOTP] ✅ SMS sent successfully');
       } catch (twilioError) {
-        console.error('Twilio error:', twilioError.message);
+        console.error('❌ Twilio error:', twilioError.message);
       }
     } else if (!twilioClient) {
-      console.log('[sendPhoneOTP] Twilio client not configured');
+      console.log('⚠️ Twilio client not configured - will use email fallback');
     }
     
     // Fallback to email if SMS not sent or phone not provided
