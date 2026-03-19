@@ -1,6 +1,17 @@
 import api from './api';
 
 const PROFILE_URL = '/profile';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-new.onrender.com/api';
+
+// Wake up backend before upload (to handle Render sleep issue)
+async function wakeUpBackend() {
+  try {
+    await api.get(`${API_BASE_URL}/ping`, { timeout: 10000 });
+    console.log('Backend wake-up ping successful');
+  } catch (err) {
+    console.warn('Backend wake-up ping failed (this is normal if server is starting):', err.message);
+  }
+}
 
 export const profileService = {
   // Get user profile
@@ -17,6 +28,9 @@ export const profileService = {
 
   // Upload profile photo
   uploadProfilePhoto: async (file) => {
+    // Wake up backend first (handles Render free tier sleeping)
+    await wakeUpBackend();
+    
     const formData = new FormData();
     formData.append('photo', file);
     

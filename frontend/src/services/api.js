@@ -43,7 +43,9 @@ api.interceptors.response.use(
   (error) => {
     // Don't auto-redirect on 401, let the component handle it
     // This prevents redirect loops when token is invalid
-    console.error('API Error:', error.response?.status, error.response?.data);
+    const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message;
+    const errorDetails = error.response?.data?.details || '';
+    console.error('API Error:', error.response?.status, errorMessage, errorDetails);
     return Promise.reject(error);
   }
 );
