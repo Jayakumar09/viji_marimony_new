@@ -121,6 +121,20 @@ app.get('/api/ping', (req, res) => {
   });
 });
 
+// Test Twilio configuration
+app.get('/api/test-twilio', (req, res) => {
+  const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+  const twilioToken = process.env.TWILIO_AUTH_TOKEN;
+  const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+  
+  res.json({
+    twilioConfigured: !!(twilioSid && twilioToken),
+    accountSid: twilioSid ? 'SET' : 'NOT SET',
+    authToken: twilioToken ? 'SET' : 'NOT SET',
+    phoneNumber: twilioPhone || 'NOT SET'
+  });
+});
+
 // Note: For Render free tier, the server sleeps after 15 minutes of inactivity.
 // To keep it awake, set up a free cron job at https://cron-job.org
 // to ping this endpoint every 5 minutes:
