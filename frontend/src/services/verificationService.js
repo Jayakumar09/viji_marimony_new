@@ -1,9 +1,23 @@
 import api from './api';
 
 const API_URL = '/verification';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-new.onrender.com/api';
+
+// Wake up backend before OTP request (to handle Render sleep issue)
+async function wakeUpBackend() {
+  try {
+    await api.get(`${API_BASE_URL}/ping`, { timeout: 10000 });
+    console.log('Backend wake-up ping successful');
+  } catch (err) {
+    console.warn('Backend wake-up ping failed (this is normal if server is starting):', err.message);
+  }
+}
 
 // Send email OTP
 export const sendEmailOTP = async (email) => {
+  // Wake up backend first (handles Render free tier sleeping)
+  await wakeUpBackend();
+  
   try {
     const response = await api.post(`${API_URL}/email/send-otp`, { email }, { timeout: 30000 });
     return response.data;
@@ -19,6 +33,9 @@ export const sendEmailOTP = async (email) => {
 
 // Verify email OTP
 export const verifyEmailOTP = async (email, otp) => {
+  // Wake up backend first (handles Render free tier sleeping)
+  await wakeUpBackend();
+  
   try {
     const response = await api.post(`${API_URL}/email/verify`, { email, otp }, { timeout: 30000 });
     return response.data;
@@ -34,6 +51,8 @@ export const verifyEmailOTP = async (email, otp) => {
 
 // Send phone OTP (with fallback email option)
 export const sendPhoneOTP = async (phone, fallbackEmail) => {
+  // Wake up backend first (handles Render free tier sleeping)
+  await wakeUpBackend();
   try {
     const response = await api.post(`${API_URL}/phone/send-otp`, { phone, fallbackEmail }, { timeout: 30000 });
     return response.data;
@@ -49,6 +68,9 @@ export const sendPhoneOTP = async (phone, fallbackEmail) => {
 
 // Verify phone OTP (with fallback email option)
 export const verifyPhoneOTP = async (phone, otp, fallbackEmail) => {
+  // Wake up backend first (handles Render free tier sleeping)
+  await wakeUpBackend();
+  
   try {
     const response = await api.post(`${API_URL}/phone/verify`, { phone, otp, fallbackEmail }, { timeout: 30000 });
     return response.data;
