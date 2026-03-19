@@ -135,6 +135,43 @@ app.get('/api/test-twilio', (req, res) => {
   });
 });
 
+// Test email configuration
+app.get('/api/test-email', (req, res) => {
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
+  
+  res.json({
+    emailConfigured: !!(emailUser && emailPass),
+    emailUser: emailUser || 'NOT SET',
+    emailPass: emailPass ? 'SET' : 'NOT SET'
+  });
+});
+
+// Simple email test endpoint
+app.get('/api/test-email-send', async (req, res) => {
+  const nodemailer = require('nodemailer');
+  const testTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+    connectionTimeout: 10000
+  });
+  
+  try {
+    await testTransporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: 'Test Email from Backend',
+      text: 'This is a test email to verify Gmail SMTP is working.'
+    });
+    res.json({ success: true, message: 'Test email sent!' });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
 // Note: For Render free tier, the server sleeps after 15 minutes of inactivity.
 // To keep it awake, set up a free cron job at https://cron-job.org
 // to ping this endpoint every 5 minutes:
