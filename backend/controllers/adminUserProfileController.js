@@ -638,9 +638,7 @@ const manualVerifyUser = async (req, res) => {
       data: {
         isVerified: status === 'APPROVED',
         manualVerificationStatus: status,
-        manualVerificationNotes: notes,
-        reviewedBy: adminId,
-        reviewedAt: new Date()
+        manualVerificationNotes: notes
       }
     });
 
