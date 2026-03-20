@@ -121,45 +121,21 @@ const sendOTPEmail = async (req, res) => {
       `
     };
     
-    try {
-      // Try Resend first (works on Render), then fallback to Gmail
-      // Note: Resend free tier only sends to vijayalakshmijayakumar45@gmail.com
-      if (resend) {
-        console.log('📧 Trying Resend first (to:', mailOptions.to, ')...');
-        resend.emails.send({
-          from: RESEND_FROM_EMAIL,
-          to: mailOptions.to,
-          subject: mailOptions.subject,
-          html: mailOptions.html
-        }).then((result) => {
-          console.log('✅ Email sent via Resend to:', mailOptions.to);
-          console.log('📧 Resend response:', JSON.stringify(result));
-        })
-        .catch(err => {
-          console.error('❌ Resend failed:', err.message);
-          // Try Gmail as fallback
-          console.log('📧 Trying Gmail as fallback...');
-          transporter.sendMail(mailOptions)
-            .then((info) => {
-              console.log('✅ Email sent via Gmail to:', mailOptions.to);
-            })
-            .catch(gmailErr => console.error('❌ Gmail also failed:', gmailErr.message));
-        });
-      } else {
-        // No Resend, try Gmail directly
-        console.log('📧 Attempting to send email via Gmail to:', mailOptions.to);
-        transporter.sendMail(mailOptions)
-          .then((info) => {
-            console.log('✅ Email sent via Gmail to:', mailOptions.to);
-            console.log('📧 Gmail messageId:', info.messageId);
-          })
-          .catch(err => {
-            console.error('❌ Gmail failed:', err.message);
-            console.error('❌ Gmail error code:', err.code);
-          });
-      }
-    } catch (emailError) {
-      console.error('❌ Email send exception:', emailError);
+        try {
+      console.log('📧 Attempting to send email via Gmail to:', mailOptions.to);
+
+      const info = await transporter.sendMail(mailOptions);
+
+      console.log('✅ Email sent via Gmail to:', mailOptions.to);
+      console.log('📧 Gmail messageId:', info.messageId);
+
+    } catch (err) {
+      console.error('❌ Gmail failed:', err.message);
+      console.error('❌ Gmail error code:', err.code);
+
+      return res.status(500).json({
+        error: "Email sending failed"
+      });
     }
     
     // Return success immediately - don't wait for email
@@ -294,25 +270,10 @@ const sendPhoneOTP = async (req, res) => {
       };
       
       try {
-        // Try Resend first, then Gmail
-        if (resend) {
-          resend.emails.send({
-            from: RESEND_FROM_EMAIL,
-            to: mailOptions.to,
-            subject: mailOptions.subject,
-            html: mailOptions.html
-          }).then(() => console.log('[sendPhoneOTP] Email sent via Resend'))
-            .catch(err => {
-              console.error('[sendPhoneOTP] Resend failed:', err.message);
-              transporter.sendMail(mailOptions)
-                .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
-                .catch(gmailErr => console.error('[sendPhoneOTP] Gmail also failed:', gmailErr.message));
-            });
-        } else {
-          transporter.sendMail(mailOptions)
-            .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
-            .catch(err => console.error('[sendPhoneOTP] Email failed:', err.message));
-        }
+        // Use Gmail directly for phone OTP fallback (skip Resend)
+        transporter.sendMail(mailOptions)
+          .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
+          .catch(err => console.error('[sendPhoneOTP] Email failed:', err.message));
       } catch (emailError) {
         console.error('Email fallback error:', emailError);
       }
