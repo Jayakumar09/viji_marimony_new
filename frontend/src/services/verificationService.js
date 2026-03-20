@@ -1,7 +1,8 @@
 import api from './api';
 
 const API_URL = '/verification';
-const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-new.onrender.com/api';
+// Backend URL - update this when deploying
+const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-backend.onrender.com/api';
 
 // Wake up backend before OTP request (to handle Render sleep issue)
 async function wakeUpBackend() {

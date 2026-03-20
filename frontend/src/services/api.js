@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-new.onrender.com/api';
+// Backend URL - update this when deploying
+const API_BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/$/, '') + '/api' : 'https://viji-marimony-backend.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
