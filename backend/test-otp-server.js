@@ -100,6 +100,16 @@ app.get("/", (req, res) => {
   res.send("Server running 🚀");
 });
 
+// Serve test-otp.html
+app.get("/test-otp", (req, res) => {
+  res.sendFile(__dirname + "/test-otp.html");
+});
+
+// Also serve with .html extension
+app.get("/test-otp.html", (req, res) => {
+  res.sendFile(__dirname + "/test-otp.html");
+});
+
 // API health
 app.get("/api", (req, res) => {
   res.json({
