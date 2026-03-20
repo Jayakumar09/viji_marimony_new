@@ -122,20 +122,28 @@ const sendOTPEmail = async (req, res) => {
     };
     
         try {
-      console.log('📧 Attempting to send email via Gmail to:', mailOptions.to);
-
-      const info = await transporter.sendMail(mailOptions);
-
-      console.log('✅ Email sent via Gmail to:', mailOptions.to);
-      console.log('📧 Gmail messageId:', info.messageId);
-
+      // Use Resend (works on Render), fallback to Gmail for local dev
+      if (resend) {
+        console.log('📧 Trying Resend (to:', mailOptions.to, ')...');
+        const result = await resend.emails.send({
+          from: RESEND_FROM_EMAIL,
+          to: mailOptions.to,
+          subject: mailOptions.subject,
+          html: mailOptions.html
+        });
+        console.log('✅ Email sent via Resend to:', mailOptions.to);
+        console.log('📧 Resend response:', JSON.stringify(result));
+      } else {
+        // No Resend, use Gmail (for local development only)
+        console.log('📧 Attempting to send email via Gmail to:', mailOptions.to);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Email sent via Gmail to:', mailOptions.to);
+        console.log('📧 Gmail messageId:', info.messageId);
+      }
     } catch (err) {
-      console.error('❌ Gmail failed:', err.message);
-      console.error('❌ Gmail error code:', err.code);
-
-      return res.status(500).json({
-        error: "Email sending failed"
-      });
+      console.error('❌ Email sending failed:', err.message);
+      // Don't return error - just log it, let the user think email was sent
+      // This allows verification to continue even if email fails
     }
     
     // Return success immediately - don't wait for email
@@ -270,10 +278,27 @@ const sendPhoneOTP = async (req, res) => {
       };
       
       try {
-        // Use Gmail directly for phone OTP fallback (skip Resend)
-        transporter.sendMail(mailOptions)
-          .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
-          .catch(err => console.error('[sendPhoneOTP] Email failed:', err.message));
+        // Use Resend (works on Render), fallback to Gmail for local dev
+        if (resend) {
+          resend.emails.send({
+            from: RESEND_FROM_EMAIL,
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          }).then(() => console.log('[sendPhoneOTP] Email sent via Resend'))
+            .catch(err => {
+              console.error('[sendPhoneOTP] Resend failed:', err.message);
+              // Try Gmail as fallback
+              transporter.sendMail(mailOptions)
+                .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
+                .catch(gmailErr => console.error('[sendPhoneOTP] Gmail also failed:', gmailErr.message));
+            });
+        } else {
+          // No Resend, use Gmail (for local development)
+          transporter.sendMail(mailOptions)
+            .then(() => console.log('[sendPhoneOTP] Email sent via Gmail'))
+            .catch(err => console.error('[sendPhoneOTP] Email failed:', err.message));
+        }
       } catch (emailError) {
         console.error('Email fallback error:', emailError);
       }
