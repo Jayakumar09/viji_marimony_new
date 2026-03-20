@@ -350,9 +350,13 @@ const verifyUser = async (req, res) => {
       }
     });
 
-    // Broadcast user verification to the user
-    sseService.broadcastProfileUpdate(id, ['isVerified', 'photosVerified']);
-    sseService.broadcastAdminUpdate('user_verified', { userId: id });
+    // Broadcast user verification to the user (non-blocking)
+    try {
+      sseService.broadcastProfileUpdate(id, ['isVerified', 'photosVerified']);
+      sseService.broadcastAdminUpdate('user_verified', { userId: id });
+    } catch (sseError) {
+      console.error('SSE broadcast error:', sseError);
+    }
 
   } catch (error) {
     console.error('Verify user error:', error);
