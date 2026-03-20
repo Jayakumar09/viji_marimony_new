@@ -1,11 +1,20 @@
 const { prisma } = require('../utils/database');
 const { setOTP, verifyOTP } = require('../utils/otp');
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 // Get FROM_EMAIL from env
 const FROM_EMAIL = process.env.FROM_EMAIL || process.env.EMAIL_USER;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-// Create email transporter
+// Initialize Resend (if API key exists)
+let resend = null;
+if (RESEND_API_KEY) {
+  resend = new Resend(RESEND_API_KEY);
+  console.log('📧 Using Resend for email');
+}
+
+// Create email transporter (fallback for local)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -99,10 +108,21 @@ const sendOTPEmail = async (req, res) => {
     };
     
     try {
-      // Send email asynchronously (don't wait for it to complete)
-      transporter.sendMail(mailOptions)
-        .then(() => console.log('✅ Email sent successfully to:', mailOptions.to))
-        .catch(err => console.error('❌ Email send error:', err.message, err.code));
+      // Use Resend if API key exists, otherwise use Gmail transporter
+      if (resend) {
+        resend.emails.send({
+          from: FROM_EMAIL,
+          to: mailOptions.to,
+          subject: mailOptions.subject,
+          html: mailOptions.html
+        }).then(() => console.log('✅ Email sent via Resend to:', mailOptions.to))
+          .catch(err => console.error('❌ Resend email error:', err.message));
+      } else {
+        // Fallback to Gmail transporter
+        transporter.sendMail(mailOptions)
+          .then(() => console.log('✅ Email sent successfully to:', mailOptions.to))
+          .catch(err => console.error('❌ Email send error:', err.message, err.code));
+      }
     } catch (emailError) {
       console.error('❌ Email send exception:', emailError);
     }
@@ -239,10 +259,20 @@ const sendPhoneOTP = async (req, res) => {
       };
       
       try {
-        // Send email asynchronously (don't wait for it to complete)
-        transporter.sendMail(mailOptions)
-          .then(() => console.log('[sendPhoneOTP] Email sent successfully'))
-          .catch(err => console.error('Email fallback error (background):', err.message));
+        // Use Resend if available, otherwise transporter
+        if (resend) {
+          resend.emails.send({
+            from: FROM_EMAIL,
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          }).then(() => console.log('[sendPhoneOTP] Email sent via Resend'))
+            .catch(err => console.error('Resend fallback error:', err.message));
+        } else {
+          transporter.sendMail(mailOptions)
+            .then(() => console.log('[sendPhoneOTP] Email sent successfully'))
+            .catch(err => console.error('Email fallback error (background):', err.message));
+        }
       } catch (emailError) {
         console.error('Email fallback error:', emailError);
       }
