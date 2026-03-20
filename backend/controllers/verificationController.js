@@ -8,8 +8,8 @@ const FROM_EMAIL = process.env.FROM_EMAIL || process.env.EMAIL_USER;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 // For Resend free tier, use their default sender (or verify your own domain)
-// Note: Resend free tier only allows sending to your own email
-const RESEND_FROM_EMAIL = 'onboarding@resend.dev';
+// Use verified domain email for Resend
+const RESEND_FROM_EMAIL = 'support@vijayalakshmiboyarmatrimony.com';
 
 // Initialize Resend (if API key exists)
 // Note: Resend free tier is limited - can only send to your own verified email (vijayalakshmijayakumar45@gmail.com)
