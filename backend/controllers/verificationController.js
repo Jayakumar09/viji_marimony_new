@@ -119,8 +119,11 @@ const sendOTPEmail = async (req, res) => {
           to: mailOptions.to,
           subject: mailOptions.subject,
           html: mailOptions.html
-        }).then(() => console.log('✅ Email sent via Resend to:', mailOptions.to))
-          .catch(err => console.error('❌ Resend email error:', err.message));
+        }).then((result) => {
+          console.log('✅ Email sent via Resend to:', mailOptions.to);
+          console.log('📧 Resend response:', JSON.stringify(result));
+        })
+          .catch(err => console.error('❌ Resend email error:', err.message, err.response));
       } else {
         // Fallback to Gmail transporter
         transporter.sendMail(mailOptions)
@@ -270,8 +273,11 @@ const sendPhoneOTP = async (req, res) => {
             to: mailOptions.to,
             subject: mailOptions.subject,
             html: mailOptions.html
-          }).then(() => console.log('[sendPhoneOTP] Email sent via Resend'))
-            .catch(err => console.error('Resend fallback error:', err.message));
+          }).then((result) => {
+            console.log('[sendPhoneOTP] Email sent via Resend');
+            console.log('📧 Resend response:', JSON.stringify(result));
+          })
+            .catch(err => console.error('Resend fallback error:', err.message, err.response));
         } else {
           transporter.sendMail(mailOptions)
             .then(() => console.log('[sendPhoneOTP] Email sent successfully'))
