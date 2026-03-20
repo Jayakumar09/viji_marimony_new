@@ -644,16 +644,21 @@ const manualVerifyUser = async (req, res) => {
       }
     });
 
-    await logAdminActivity({
-      adminId,
-      action: 'MANUAL_VERIFY_USER',
-      targetUserId: id,
-      details: {
-        status: status,
-        notes: notes,
-        verifiedAt: new Date()
-      }
-    });
+    // Log admin activity (non-blocking - table might not exist)
+    try {
+      await logAdminActivity({
+        adminId,
+        action: 'MANUAL_VERIFY_USER',
+        targetUserId: id,
+        details: {
+          status: status,
+          notes: notes,
+          verifiedAt: new Date()
+        }
+      });
+    } catch (logError) {
+      console.error('Failed to log admin activity:', logError);
+    }
 
     res.json({
       success: true,
