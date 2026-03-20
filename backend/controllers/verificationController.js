@@ -29,6 +29,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Verify transporter on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('📧 Gmail transporter ERROR:', error.message);
+  } else {
+    console.log('📧 Gmail transporter is ready');
+  }
+});
+
 // Log email config on startup (without password)
 console.log('📧 Email transporter configured with:', process.env.EMAIL_USER || 'NO EMAIL SET');
 
@@ -116,12 +125,18 @@ const sendOTPEmail = async (req, res) => {
     try {
       // Use Gmail SMTP as primary (more reliable), Resend as fallback
       // Note: Resend free tier can only send to your own email
+      console.log('📧 Attempting to send email to:', mailOptions.to);
       transporter.sendMail(mailOptions)
-        .then(() => console.log('✅ Email sent via Gmail to:', mailOptions.to))
+        .then((info) => {
+          console.log('✅ Email sent via Gmail to:', mailOptions.to);
+          console.log('📧 Gmail messageId:', info.messageId);
+        })
         .catch(err => {
-          console.error('❌ Gmail failed, trying Resend:', err.message);
+          console.error('❌ Gmail failed:', err.message);
+          console.error('❌ Gmail error code:', err.code);
           // Fallback to Resend if Gmail fails
           if (resend) {
+            console.log('📧 Trying Resend as fallback...');
             resend.emails.send({
               from: RESEND_FROM_EMAIL,
               to: mailOptions.to,
