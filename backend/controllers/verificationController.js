@@ -7,11 +7,15 @@ const { Resend } = require('resend');
 const FROM_EMAIL = process.env.FROM_EMAIL || process.env.EMAIL_USER;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
+// For Resend free tier, use their default sender (or verify your own domain)
+const RESEND_FROM_EMAIL = 'onboarding@resend.dev';
+
 // Initialize Resend (if API key exists)
 let resend = null;
 if (RESEND_API_KEY) {
   resend = new Resend(RESEND_API_KEY);
   console.log('📧 Using Resend for email');
+  console.log('📧 Resend from address:', RESEND_FROM_EMAIL);
 }
 
 // Create email transporter (fallback for local)
@@ -111,7 +115,7 @@ const sendOTPEmail = async (req, res) => {
       // Use Resend if API key exists, otherwise use Gmail transporter
       if (resend) {
         resend.emails.send({
-          from: FROM_EMAIL,
+          from: RESEND_FROM_EMAIL,
           to: mailOptions.to,
           subject: mailOptions.subject,
           html: mailOptions.html
@@ -262,7 +266,7 @@ const sendPhoneOTP = async (req, res) => {
         // Use Resend if available, otherwise transporter
         if (resend) {
           resend.emails.send({
-            from: FROM_EMAIL,
+            from: RESEND_FROM_EMAIL,
             to: mailOptions.to,
             subject: mailOptions.subject,
             html: mailOptions.html
