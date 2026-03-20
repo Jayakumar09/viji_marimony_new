@@ -19,7 +19,9 @@ console.log('📧 Email transporter configured with:', process.env.EMAIL_USER ||
 
 // Configure Twilio (optional)
 let twilioClient = null;
-console.log('📱 Twilio config check - SID:', process.env.TWILIO_ACCOUNT_SID ? 'SET' : 'NOT SET', '| Token:', process.env.TWILIO_AUTH_TOKEN ? 'SET' : 'NOT SET');
+console.log('📱 Loading Twilio...');
+console.log('📱 TWILIO_ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID ? 'present' : 'missing');
+console.log('📱 TWILIO_AUTH_TOKEN:', process.env.TWILIO_AUTH_TOKEN ? 'present' : 'missing');
 
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   try {
@@ -27,10 +29,10 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
     twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
     console.log('✅ Twilio client initialized successfully');
   } catch (err) {
-    console.warn('❌ Twilio not configured:', err.message);
+    console.warn('❌ Twilio initialization failed:', err.message);
   }
 } else {
-  console.warn('⚠️ Twilio credentials not found in environment');
+  console.warn('⚠️ Twilio credentials not found');
 }
 
 // Helper function to check if user should be marked for admin review
