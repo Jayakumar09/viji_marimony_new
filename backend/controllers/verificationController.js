@@ -2,16 +2,16 @@ const { prisma } = require('../utils/database');
 const { setOTP, verifyOTP } = require('../utils/otp');
 const nodemailer = require('nodemailer');
 
+// Get FROM_EMAIL from env
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.EMAIL_USER;
+
 // Create email transporter
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  },
-  connectionTimeout: 15000
+  }
 });
 
 // Log email config on startup (without password)
@@ -83,7 +83,7 @@ const sendOTPEmail = async (req, res) => {
     const otp = setOTP(email, 'email');
     
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@boyarmatrimony.com',
+      from: FROM_EMAIL,
       to: email,
       subject: 'Email Verification OTP - Vijayalakshmi Boyar Matrimony',
       html: `
@@ -222,7 +222,7 @@ const sendPhoneOTP = async (req, res) => {
     if (!smsSent) {
       const emailToSend = emailToUse;
       const mailOptions = {
-        from: process.env.EMAIL_USER || 'noreply@boyarmatrimony.com',
+        from: FROM_EMAIL,
         to: emailToSend,
         subject: 'Phone Verification OTP - Vijayalakshmi Boyar Matrimony',
         html: `
