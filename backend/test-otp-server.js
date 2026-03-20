@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
+const { Resend } = require("resend");
 
 const app = express();
 
@@ -15,6 +16,10 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const FROM_EMAIL = process.env.FROM_EMAIL || process.env.EMAIL_USER;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+// Resend sender for free tier
+const RESEND_FROM_EMAIL = "onboarding@resend.dev";
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
@@ -25,11 +30,6 @@ const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 min
 /* =========================
    CHECK ENV
 ========================= */
-if (!EMAIL_USER || !EMAIL_PASS) {
-  console.error("❌ EMAIL_USER or EMAIL_PASS missing in .env");
-  process.exit(1);
-}
-
 if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
   console.error("❌ Twilio env values missing in .env");
   process.exit(1);
@@ -54,6 +54,14 @@ const phoneOtpStore = new Map();
 /* =========================
    SERVICES
 ========================= */
+// Initialize Resend
+let resend = null;
+if (RESEND_API_KEY && RESEND_API_KEY.startsWith("re_")) {
+  resend = new Resend(RESEND_API_KEY);
+  console.log("📧 Resend configured (free tier - only sends to your own email)");
+}
+
+// Gmail transporter (works locally, may not work on Render)
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -138,8 +146,7 @@ app.post("/api/send-email-otp", async (req, res) => {
     const record = createOtpRecord();
     emailOtpStore.set(email, record);
 
-    await transporter.sendMail({
-      from: FROM_EMAIL,
+    const mailOptions = {
       to: email,
       subject: "Your Email OTP Code",
       text: `Your OTP is: ${record.otp}. It expires in 5 minutes.`,
@@ -151,12 +158,49 @@ app.post("/api/send-email-otp", async (req, res) => {
           <p>Expires in <b>5 minutes</b>.</p>
         </div>
       `,
-    });
+    };
 
-    return res.status(200).json({
-      message: "Email OTP sent successfully ✅",
-      email,
-    });
+    // Try Resend first (works on Render), then fallback to Gmail
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: RESEND_FROM_EMAIL,
+          to: email,
+          subject: mailOptions.subject,
+          html: mailOptions.html,
+        });
+        console.log("✅ Email sent via Resend to:", email);
+        return res.status(200).json({
+          message: "Email OTP sent successfully ✅ (via Resend)",
+          email,
+        });
+      } catch (resendErr) {
+        console.error("❌ Resend failed:", resendErr.message);
+        // Fallback to Gmail
+        try {
+          await transporter.sendMail({ ...mailOptions, from: FROM_EMAIL });
+          console.log("✅ Email sent via Gmail to:", email);
+          return res.status(200).json({
+            message: "Email OTP sent successfully ✅ (via Gmail)",
+            email,
+          });
+        } catch (gmailErr) {
+          console.error("❌ Gmail also failed:", gmailErr.message);
+          return res.status(500).json({
+            error: "Failed to send email",
+            message: "Both Resend and Gmail failed",
+          });
+        }
+      }
+    } else {
+      // No Resend, use Gmail
+      await transporter.sendMail({ ...mailOptions, from: FROM_EMAIL });
+      console.log("✅ Email sent via Gmail to:", email);
+      return res.status(200).json({
+        message: "Email OTP sent successfully ✅",
+        email,
+      });
+    }
   } catch (error) {
     console.error("SEND EMAIL OTP ERROR:", error);
     return res.status(500).json({
@@ -225,23 +269,40 @@ app.post("/api/resend-email-otp", async (req, res) => {
     const record = createOtpRecord();
     emailOtpStore.set(email, record);
 
-    await transporter.sendMail({
-      from: FROM_EMAIL,
+    const mailOptions = {
       to: email,
       subject: "Your New Email OTP Code",
       text: `Your new OTP is: ${record.otp}. It expires in 5 minutes.`,
-    });
+      html: `<h2>New OTP: ${record.otp}</h2><p>Expires in 5 minutes.</p>`,
+    };
 
-    return res.status(200).json({
-      message: "New email OTP sent successfully ✅",
-      email,
-    });
+    // Try Resend first, then fallback to Gmail
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: RESEND_FROM_EMAIL,
+          to: email,
+          subject: mailOptions.subject,
+          html: mailOptions.html,
+        });
+        console.log("✅ Resend new OTP to:", email);
+        return res.status(200).json({ message: "New email OTP sent successfully ✅" });
+      } catch (resendErr) {
+        console.error("❌ Resend failed:", resendErr.message);
+        try {
+          await transporter.sendMail({ ...mailOptions, from: FROM_EMAIL });
+          return res.status(200).json({ message: "New email OTP sent successfully ✅" });
+        } catch {
+          return res.status(500).json({ error: "Failed to send email" });
+        }
+      }
+    } else {
+      await transporter.sendMail({ ...mailOptions, from: FROM_EMAIL });
+      return res.status(200).json({ message: "New email OTP sent successfully ✅" });
+    }
   } catch (error) {
     console.error("RESEND EMAIL OTP ERROR:", error);
-    return res.status(500).json({
-      error: "Something went wrong!",
-      message: error.message,
-    });
+    return res.status(500).json({ error: "Something went wrong!", message: error.message });
   }
 });
 
