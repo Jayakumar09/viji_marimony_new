@@ -766,37 +766,34 @@ const PhotoApprovals = () => {
                         sx={{ bgcolor: '#f0f0f0' }}
                       />
                     </Box>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                       <Button
-                        fullWidth
                         variant="outlined"
                         color="primary"
                         size="small"
                         startIcon={<Visibility />}
                         onClick={() => setViewDialog({ open: true, photoUrl: photo.photoUrl, userName: `${photo.user?.firstName} ${photo.user?.lastName}` })}
-                        sx={{ borderRadius: 2 }}
+                        sx={{ borderRadius: 2, flex: '1 1 auto', minWidth: '70px' }}
                       >
                         View
                       </Button>
                       <Button
-                        fullWidth
                         variant="contained"
                         color="success"
                         size="small"
                         startIcon={<Check />}
                         onClick={() => handleApprove(photo.id)}
-                        sx={{ borderRadius: 2 }}
+                        sx={{ borderRadius: 2, flex: '1 1 auto', minWidth: '80px' }}
                       >
                         Approve
                       </Button>
                       <Button
-                        fullWidth
                         variant="outlined"
                         color="error"
                         size="small"
                         startIcon={<Close />}
                         onClick={() => setRejectDialog({ open: true, photoId: photo.id, reason: '' })}
-                        sx={{ borderRadius: 2 }}
+                        sx={{ borderRadius: 2, flex: '1 1 auto', minWidth: '70px' }}
                       >
                         Reject
                       </Button>
