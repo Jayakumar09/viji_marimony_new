@@ -600,6 +600,7 @@ const PhotoApprovals = () => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rejectDialog, setRejectDialog] = useState({ open: false, photoId: null, reason: '' });
+  const [viewDialog, setViewDialog] = useState({ open: false, photoUrl: '', userName: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [filter, setFilter] = useState('pending');
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
@@ -768,6 +769,17 @@ const PhotoApprovals = () => {
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Button
                         fullWidth
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        startIcon={<Visibility />}
+                        onClick={() => setViewDialog({ open: true, photoUrl: photo.photoUrl, userName: `${photo.user?.firstName} ${photo.user?.lastName}` })}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        fullWidth
                         variant="contained"
                         color="success"
                         size="small"
@@ -851,6 +863,73 @@ const PhotoApprovals = () => {
             disabled={!rejectDialog.reason.trim()}
           >
             Reject Photo
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* View Photo Dialog */}
+      <Dialog
+        open={viewDialog.open}
+        onClose={() => setViewDialog({ open: false, photoUrl: '', userName: '' })}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">Photo Details</Typography>
+            <IconButton onClick={() => setViewDialog({ open: false, photoUrl: '', userName: '' })}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <Typography variant="body2" color="textSecondary" sx={{ px: 3, pb: 2 }}>
+            User: <strong>{viewDialog.userName}</strong>
+          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            bgcolor: '#f5f5f5', 
+            p: 2,
+            maxHeight: '70vh',
+            overflow: 'auto'
+          }}>
+            <img 
+              src={viewDialog.photoUrl || 'https://via.placeholder.com/600x400'} 
+              alt="Full size verification" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '70vh',
+                objectFit: 'contain',
+                borderRadius: 8
+              }} 
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            variant="contained" 
+            color="success" 
+            startIcon={<Check />}
+            onClick={() => {
+              const photoId = photos.find(p => p.photoUrl === viewDialog.photoUrl)?.id;
+              if (photoId) handleApprove(photoId);
+              setViewDialog({ open: false, photoUrl: '', userName: '' });
+            }}
+          >
+            Approve
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="error" 
+            startIcon={<Close />}
+            onClick={() => {
+              const photoId = photos.find(p => p.photoUrl === viewDialog.photoUrl)?.id;
+              if (photoId) setRejectDialog({ open: true, photoId, reason: '' });
+              setViewDialog({ open: false, photoUrl: '', userName: '' });
+            }}
+          >
+            Reject
           </Button>
         </DialogActions>
       </Dialog>
